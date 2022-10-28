@@ -6,18 +6,20 @@
 Engine left_en('F', 0, 5, 6);
 Engine right_en('F', 0, 10, 11);
 BluetoothModule bt(9, 8);
-DistanceSensor ds(4, 7);
-DistanceSensor ds2(12,13);
+DistanceSensor ds_f(4, 7);
+DistanceSensor ds_l(12, 13);
+DistanceSensor ds_r(0, 1);
 MPU6050 mpu(Wire);
 
-Car car(bt, left_en, right_en, ds,ds2, mpu);
+Car car(bt, left_en, right_en, ds_f, ds_l,ds_r, mpu);
 unsigned long myTime;
 char bt_string[170];
 int16_t x_pos;
 int16_t y_pos;
 int16_t z_pos;
-int ds_val;
-int ds2_val;
+int ds_val_f;
+int ds_val_r;
+int ds_val_l;
 
 void serial_print_sensors();
 
@@ -27,7 +29,7 @@ void setup() {
     delay(500);
     car.setup();
     Serial.begin(9600);
-    ds2.sensor_setup();
+    ds_l.sensor_setup();
 
 }
 
@@ -48,7 +50,7 @@ void loop() {
 //        car.drive();
 //    }
 //    if (Serial.available()>0){
-//        ds.change_distance();
+//        ds_f.change_distance();
 //
 //    }
 
@@ -73,7 +75,7 @@ void serial_print_sensors(){
 
 
         Serial.print("Ds = ");
-        Serial.print(ds.getDistance());
+        Serial.print(ds_f.getDistance());
         Serial.print(" x_pos = ");
         Serial.print(x_pos);
         Serial.print(" y_pos = ");
@@ -81,10 +83,11 @@ void serial_print_sensors(){
         Serial.print(" z_pos = ");
         Serial.println(z_pos);
 
-        ds_val = ds.getDistance();
-        ds2_val = ds2.getDistance();
-        sprintf(bt_string, "text z_pos=%d, ds=%d, ds2=%d", z_pos, ds_val, ds2_val);
-        bt.bt_print(bt_string);
+        ds_val_f = ds_f.getDistance();
+//        ds_val_l = ds_l.getDistance();
+//        ds_val_r = ds_r.getDistance();
+//        sprintf(bt_string, "text z_pos=%d, ds_f=%d, ds_l=%d, ds_r=%d", z_pos, ds_val_f, ds_val_l, ds_val_r);
+//        bt.bt_print(bt_string);
 
 
 

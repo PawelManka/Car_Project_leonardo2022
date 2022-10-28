@@ -11,7 +11,8 @@ void Car::setup() {
     left_en_.engine_setup();
     right_en_.engine_setup();
     ds_front_.sensor_setup();
-    ds_side_.sensor_setup();
+//    ds_left_.sensor_setup();
+//    ds_right_.sensor_setup();
 
     //Mpu setup:
     byte stat = mpu_.begin();
@@ -26,7 +27,8 @@ void Car::drive() {
     bt_.read_device_value();
     mode_ = bt_.getMode();
     ds_front_.change_distance();
-    ds_side_.change_distance();
+//    ds_left_.change_distance();
+//    ds_right_.change_distance();
     mpu_.update();
 
     if(mode_ == 'm') {
@@ -52,10 +54,7 @@ void Car::drive() {
         }
 
     }else if(mode_ == 'a'){
-//        for (int j=3;j>0;j--) {
-//            distance_buffer[j]=distance_buffer[j-1];
-//        }
-//        distance_buffer[0] = ds_front_.getDistance();
+
         speed_ = 120;
         forward();
 
@@ -77,15 +76,8 @@ void Car::drive() {
                     speed_ = 120;
                     forward();
                     automatic_mode = 'c'; //c = continue avoiding
-                    time = millis();
+
                 }
-            }
-        }
-
-        if(automatic_mode = 'c'){
-            if((millis()-time) > 2000) {
-
-                time = millis();
             }
         }
 
