@@ -29,7 +29,6 @@ void setup() {
     delay(500);
     car.setup();
     Serial.begin(9600);
-    ds_l.sensor_setup();
 
 }
 
@@ -63,7 +62,6 @@ void loop() {
         }
     }
 //    serial_print_sensors();
-//    myTime = millis();
 
 }
 
@@ -84,13 +82,10 @@ void serial_print_sensors(){
         Serial.println(z_pos);
 
         ds_val_f = ds_f.getDistance();
-//        ds_val_l = ds_l.getDistance();
-//        ds_val_r = ds_r.getDistance();
-//        sprintf(bt_string, "text z_pos=%d, ds_f=%d, ds_l=%d, ds_r=%d", z_pos, ds_val_f, ds_val_l, ds_val_r);
-//        bt.bt_print(bt_string);
-
-
-
+        ds_val_l = ds_l.getDistance();
+        ds_val_r = ds_r.getDistance();
+        sprintf(bt_string, "text z_pos=%d, ds_f=%d, ds_l=%d, ds_r=%d", z_pos, ds_val_f, ds_val_l, ds_val_r);
+        bt.bt_print(bt_string);
 
 }
 
