@@ -64,20 +64,14 @@ void Car::drive() {
             ds_front_.change_distance();
             if(ds_front_.getDistance() < 10){
                 automatic_mode = 'r';
-                speed_ = 120;
+                speed_ = 140;
                 right();
                 float old_mpu = mpu_.getAngleZ();
-                int rotate_time = millis();
                 while(abs(mpu_.getAngleZ() - old_mpu) < 88){
-                    mpu_.update(); //TODO BUG Napraw
-
-                    if(abs(millis()-rotate_time) > 10000) {
-                        rotate_time = millis();
-                        bt_.bt_print("text Can't rotate, check obstackles");
-                        break;
-                    }
+                    mpu_.update(); //BUUGG;
 
                 }
+
                 stop();
                 ds_front_.change_distance();
                 if(ds_front_.getDistance() > 10){
