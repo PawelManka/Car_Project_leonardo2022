@@ -121,29 +121,5 @@ private:
 
 };
 
-//class Mpu6050{
-//public:
-//    Mpu6050(){
-//
-//    }
-//
-//    void MpuSetUp();
-//
-//    void MpuReadValues();
-//
-//
-//
-//private:
-//
-//    int16_t x_pos_;
-//    int16_t y_pos_;
-//    int16_t z_pos_;
-//    int16_t temp_;
-//    int16_t acc_x_;
-//    int16_t acc_y_;
-//    int16_t acc_z_;
-//
-//
-//};
 
 #endif //CAR_PROJECT_LEONARDO2022_CAR_MODULES_HPP

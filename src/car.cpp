@@ -22,20 +22,55 @@ void Car::setup() {
 }
 
 void Car::update_automatic_state() {
+
     switch (automatic_state_) {
     case 0:
-        if(ds_front_.getDistance() < 10){
+        if(ds_front_.getDistance() < SAFE_SPACE){
             automatic_state_ = 1;
         }
         break;
     case 1:
-        if(ds_front_.getDistance() < 10){
-            automatic_state_ = 1;
+        if(ds_front_.getDistance() >= SAFE_SPACE){
+            automatic_state_ = 0;
         }else{
+
+            if(ds_right_.getDistance() > SAFE_SPACE or ds_left_.getDistance() > SAFE_SPACE){
+                if(ds_right_.getDistance() > ds_left_.getDistance()){
+                    automatic_state_ = 3;
+                    old_angle = mpu_.getAngleZ();
+                }else{
+                    automatic_state_ = 4;
+                    old_angle = mpu_.getAngleZ();
+
+                }
+            }else{
+                automatic_state_ = 2;
+                old_angle = mpu_.getAngleZ();
+            }
+        }
+        break;
+    case 2:
+        if(abs(mpu_.getAngleZ() - old_angle > 178)){
+            automatic_state_ = 0;
+        }else{
+            //TODO wykrywanie bledow
+
+        }
+        break;
+
+    case 3:
+        if(abs(mpu_.getAngleZ() - old_angle > 88)){
             automatic_state_ = 0;
         }
-
+        break;
+    case 4:
+        if(abs(mpu_.getAngleZ() - old_angle > 88)){
+            automatic_state_ = 0;
+        }
+        break;
     }
+
+
 }
 
 void Car::drive() {
@@ -50,6 +85,10 @@ void Car::drive() {
 
     if(mode_ == 'm') {
 
+        if(previous_mode_ == 'a'){
+            stop();
+        }
+        //TODO po zmianie z a ma sie zatrzymywac!
         speed_ = bt_.getEngineValue();
         state_ = bt_.getStateValue();
 
@@ -71,51 +110,93 @@ void Car::drive() {
         }
 
     }else if(mode_ == 'a'){
-        if(previous_mode_ != mode_){
+
+        char test_string[170];
+        if(previous_mode_ == 'm'){
+
             automatic_state_ = 0;
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+
         }else{
             update_automatic_state();
+            sprintf(test_string, "aktualizuje stan");
+            bt_.bt_print(test_string);
         }
 
-
-        switch(automatic_state_){
+        switch (automatic_state_ ) {
             case 0:
-                speed_ = 120;
-                forward();
+            speed_ = 120;
+            forward();
 
-            case 1:
-                stop();
+            sprintf(test_string, "FORWARD text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+        case 1:
 
+            stop();
+            sprintf(test_string, "STOP text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+        case 2:
+            speed_ = 140;
+            right();
+
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+        case 3:
+            speed_ = 150;
+            right();
+
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+        case 4:
+
+            speed_ = 150;
+            left();
+
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
         }
 
-//        speed_ = 120;
-//        forward();
+//        if(automatic_state_ == 0) {
 //
-//        if(ds_front_.getDistance() < 10){
-//            automatic_state_ = 's';
-//            delay(10);
-//            ds_front_.change_distance();
-//            if(ds_front_.getDistance() < 10){
-//                automatic_state_ = 'r';
-//                speed_ = 140;
-//                right();
-//                float old_mpu = mpu_.getAngleZ();
-//                while(abs(mpu_.getAngleZ() - old_mpu) < 88){
-//                    mpu_.update(); //BUUGG;
+//            speed_ = 120;
+//            forward();
 //
-//                }
+//            sprintf(test_string, "FORWARD text automatic_state = %d", automatic_state_);
+//            bt_.bt_print(test_string);
 //
-//                stop();
-//                ds_front_.change_distance();
-//                if(ds_front_.getDistance() > 10){
-//                    speed_ = 120;
-//                    forward();
-//                    automatic_state_ = 'f'; //c = continue avoiding
+//        }else if(automatic_state_ == 1){
 //
-//                }
-//            }
+//            stop();
+//            sprintf(test_string, "STOP text automatic_state = %d", automatic_state_);
+//            bt_.bt_print(test_string);
+//
+//        }else if(automatic_state_ == 2){
+//            speed_ = 140;
+//            right();
+//
+//            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+//            bt_.bt_print(test_string);
+//
+//        }else if(automatic_state_ == 3){
+//            speed_ = 150;
+//            right();
+//
+//            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+//            bt_.bt_print(test_string);
+//        }else if(automatic_state_ == 4){
+//
+//            speed_ = 150;
+//            left();
+//
+//            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+//            bt_.bt_print(test_string);
 //        }
-
 
     }
 

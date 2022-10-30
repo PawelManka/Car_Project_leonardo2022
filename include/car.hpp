@@ -5,6 +5,7 @@
 #ifndef CAR_PROJECT_LEONARDO2022_CAR_HPP
 #define CAR_PROJECT_LEONARDO2022_CAR_HPP
 
+#define SAFE_SPACE 10
 #include "car_modules.hpp"
 #include <MPU6050_light.h>
 
@@ -40,6 +41,8 @@ public:
     void stop();
     char getMode() const;
 
+
+
 private:
     BluetoothModule& bt_;
     Engine& right_en_;
@@ -49,9 +52,11 @@ private:
     DistanceSensor& ds_right_;
     MPU6050& mpu_;
     int speed_;
-    char mode_;
+    char mode_ = 'm';
     int state_;
-    char automatic_state_;
+    int automatic_state_ = 0;
+    float old_angle;
+    int bf_turn_time;
 };
 
 #endif //CAR_PROJECT_LEONARDO2022_CAR_HPP
