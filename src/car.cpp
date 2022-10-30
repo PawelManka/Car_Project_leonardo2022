@@ -21,10 +21,27 @@ void Car::setup() {
 
 }
 
+void Car::update_automatic_state() {
+    switch (automatic_state_) {
+    case 0:
+        if(ds_front_.getDistance() < 10){
+            automatic_state_ = 1;
+        }
+        break;
+    case 1:
+        if(ds_front_.getDistance() < 10){
+            automatic_state_ = 1;
+        }else{
+            automatic_state_ = 0;
+        }
+
+    }
+}
 
 void Car::drive() {
 
     bt_.read_device_value();
+    char previous_mode_ = mode_;
     mode_ = bt_.getMode();
     ds_front_.change_distance();
     ds_left_.change_distance();
@@ -54,34 +71,51 @@ void Car::drive() {
         }
 
     }else if(mode_ == 'a'){
-
-        speed_ = 120;
-        forward();
-
-        if(ds_front_.getDistance() < 10){
-            automatic_mode = 's';
-            delay(10);
-            ds_front_.change_distance();
-            if(ds_front_.getDistance() < 10){
-                automatic_mode = 'r';
-                speed_ = 140;
-                right();
-                float old_mpu = mpu_.getAngleZ();
-                while(abs(mpu_.getAngleZ() - old_mpu) < 88){
-                    mpu_.update(); //BUUGG;
-
-                }
-
-                stop();
-                ds_front_.change_distance();
-                if(ds_front_.getDistance() > 10){
-                    speed_ = 120;
-                    forward();
-                    automatic_mode = 'f'; //c = continue avoiding
-
-                }
-            }
+        if(previous_mode_ != mode_){
+            automatic_state_ = 0;
+        }else{
+            update_automatic_state();
         }
+
+
+        switch(automatic_state_){
+            case 0:
+                speed_ = 120;
+                forward();
+
+            case 1:
+                stop();
+
+        }
+
+//        speed_ = 120;
+//        forward();
+//
+//        if(ds_front_.getDistance() < 10){
+//            automatic_state_ = 's';
+//            delay(10);
+//            ds_front_.change_distance();
+//            if(ds_front_.getDistance() < 10){
+//                automatic_state_ = 'r';
+//                speed_ = 140;
+//                right();
+//                float old_mpu = mpu_.getAngleZ();
+//                while(abs(mpu_.getAngleZ() - old_mpu) < 88){
+//                    mpu_.update(); //BUUGG;
+//
+//                }
+//
+//                stop();
+//                ds_front_.change_distance();
+//                if(ds_front_.getDistance() > 10){
+//                    speed_ = 120;
+//                    forward();
+//                    automatic_state_ = 'f'; //c = continue avoiding
+//
+//                }
+//            }
+//        }
+
 
     }
 
@@ -137,3 +171,5 @@ void Car::stop() {
     left_en_.upload_parameters();
     right_en_.upload_parameters();
 }
+
+

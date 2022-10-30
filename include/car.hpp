@@ -32,7 +32,7 @@ public:
      * metoda drive jest odpowiedzialna za jazdę, użytkownik za pomocą infterfejsu operatorskiego z telefonu prowdzi
      */
     void drive();
-
+    void update_automatic_state();
     void forward();
     void backward();
     void right();
@@ -51,7 +51,7 @@ private:
     int speed_;
     char mode_;
     int state_;
-    char automatic_mode;
+    char automatic_state_;
 };
 
 #endif //CAR_PROJECT_LEONARDO2022_CAR_HPP
