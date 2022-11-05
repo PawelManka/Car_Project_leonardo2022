@@ -24,50 +24,112 @@ void Car::setup() {
 void Car::update_automatic_state() {
 
     switch (automatic_state_) {
-    case 0:
-        if(ds_front_.getDistance() < SAFE_SPACE){
-            automatic_state_ = 1;
-        }
-        break;
-    case 1:
-        if(ds_front_.getDistance() >= SAFE_SPACE){
-            automatic_state_ = 0;
-        }else{
-
-            if(ds_right_.getDistance() > SAFE_SPACE or ds_left_.getDistance() > SAFE_SPACE){
-                if(ds_right_.getDistance() > ds_left_.getDistance()){
-                    automatic_state_ = 3;
-                    old_angle = mpu_.getAngleZ();
-                }else{
-                    automatic_state_ = 4;
-                    old_angle = mpu_.getAngleZ();
-
-                }
+        case 0:
+            if(ds_front_.getDistance() < SAFE_SPACE){
+                automatic_state_ = 1;
+            }
+            break;
+        case 1:
+            if(ds_front_.getDistance() >= SAFE_SPACE){
+                automatic_state_ = 0;
             }else{
-                automatic_state_ = 2;
+
+                if(ds_right_.getDistance() > SAFE_SPACE or ds_left_.getDistance() > SAFE_SPACE){
+                    old_time = millis();
+                    if(ds_right_.getDistance() > ds_left_.getDistance()){
+                        automatic_state_ = 3;
+                        old_angle = mpu_.getAngleZ();
+                        old_time = millis();
+                    }else{
+                        automatic_state_ = 4;
+                        old_angle = mpu_.getAngleZ();
+
+                    }
+                }else{
+                    automatic_state_ = 2;
+                    old_angle = mpu_.getAngleZ();
+                }
+            }
+            break;
+        case 2:
+            if(abs(mpu_.getAngleZ() - old_angle) > 178){
+                automatic_state_ = 0;
+            }else{
+                //TODO wykrywanie bledow
+
+            }
+            break;
+
+        case 3:
+            if(abs(mpu_.getAngleZ() - old_angle) > 85){
+                automatic_state_ = 5;
+
+            }
+            break;
+        case 4:
+            if(abs(mpu_.getAngleZ() - old_angle) > 85){
+                automatic_state_ = 5;
+                old_time = millis();
+            }
+            break;
+        case 5:
+            if(ds_left_.getDistance() > 10){
+                if(ds_left_.getDistance() > 10 and abs(millis() - old_time) > 1500){
+
+                    automatic_state_ = 6;
+                    old_angle = mpu_.getAngleZ();
+                }
+            }
+            break;
+        case 6:
+            if(abs(mpu_.getAngleZ() - old_angle) > 88){
+                automatic_state_ = 7;
+                avoiding_flag = 0;
+            }
+            break;
+        case 7:
+            if((avoiding_flag == 0) && (ds_left_.getDistance() < 10)){
+                if(ds_left_.getDistance() < 10){
+                    avoiding_flag = 1;
+                    bt_.bt_print("avoiding_flag1");
+                }
+
+            }else if((1 == avoiding_flag) && (ds_left_.getDistance() > 10)){
+                if(ds_left_.getDistance() > 10){
+
+                    bt_.bt_print("avoiding_flag1");
+                }
+
+            }else if(avoiding_flag == 2){
+                automatic_state_ = 8;
+                old_angle = mpu_.getAngleZ();
+                avoiding_flag = 0; // not estimated
+            }
+            break;
+        case 8:
+            if(abs(mpu_.getAngleZ() - old_angle) > 85){
+                automatic_state_ = 9;
+                actual_time = millis();
+            }
+            break;
+        case 9:
+
+            if(abs(actual_time - millis()) > 2000){
+                automatic_state_ = 10;
                 old_angle = mpu_.getAngleZ();
             }
-        }
-        break;
-    case 2:
-        if(abs(mpu_.getAngleZ() - old_angle > 178)){
-            automatic_state_ = 0;
-        }else{
-            //TODO wykrywanie bledow
+            break;
+        case 10:
+            if(abs(old_angle - mpu_.getAngleZ()) > 85){
+                automatic_state_ = 0;
+            }
 
-        }
-        break;
 
-    case 3:
-        if(abs(mpu_.getAngleZ() - old_angle > 88)){
-            automatic_state_ = 0;
-        }
-        break;
-    case 4:
-        if(abs(mpu_.getAngleZ() - old_angle > 88)){
-            automatic_state_ = 0;
-        }
-        break;
+//    case 20:
+//        if(abs(mpu_.getAngleZ() - old_angle) > 88){
+//            automatic_state_ = 5;
+//        }
+//        break;
     }
 
 
@@ -86,26 +148,26 @@ void Car::drive() {
     if(mode_ == 'm') {
 
         if(previous_mode_ == 'a'){
-            stop();
+            manual_state_ = 4;
         }
         //TODO po zmianie z a ma sie zatrzymywac!
         speed_ = bt_.getEngineValue();
-        state_ = bt_.getStateValue();
+        manual_state_ = bt_.getStateValue();
 
-        if (state_ == 0) {
+        if (manual_state_ == 0) {
             forward();
         }
-        if (state_ == 1) {
+        if (manual_state_ == 1) {
             backward();
         }
-        if (state_ == 2) {
+        if (manual_state_ == 2) {
             left();
         }
-        if (state_ == 3) {
+        if (manual_state_ == 3) {
 
             right();
         }
-        if (state_ == 4) {
+        if (manual_state_ == 4) {
             stop();
         }
 
@@ -120,12 +182,10 @@ void Car::drive() {
 
         }else{
             update_automatic_state();
-            sprintf(test_string, "aktualizuje stan");
-            bt_.bt_print(test_string);
         }
 
         switch (automatic_state_ ) {
-            case 0:
+        case 0:
             speed_ = 120;
             forward();
 
@@ -146,7 +206,7 @@ void Car::drive() {
             bt_.bt_print(test_string);
             break;
         case 3:
-            speed_ = 150;
+            speed_ = 180;
             right();
 
             sprintf(test_string, "text automatic_state = %d", automatic_state_);
@@ -160,45 +220,56 @@ void Car::drive() {
             sprintf(test_string, "text automatic_state = %d", automatic_state_);
             bt_.bt_print(test_string);
             break;
+        case 5:
+            speed_ = 150;
+            forward();
+
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+
+        case 6:
+            speed_ = 150;
+            left();
+
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+        case 7:
+            speed_ = 140;
+            forward();
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+        case 8:
+            speed_ = 150;
+            left();
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+        case 9:
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+        case 10:
+            speed_ = 150;
+            right();
+
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
+        case 20:
+            speed_ = 220;
+            right();
+
+            sprintf(test_string, "text automatic_state = %d", automatic_state_);
+            bt_.bt_print(test_string);
+            break;
         }
-
-//        if(automatic_state_ == 0) {
-//
-//            speed_ = 120;
-//            forward();
-//
-//            sprintf(test_string, "FORWARD text automatic_state = %d", automatic_state_);
-//            bt_.bt_print(test_string);
-//
-//        }else if(automatic_state_ == 1){
-//
-//            stop();
-//            sprintf(test_string, "STOP text automatic_state = %d", automatic_state_);
-//            bt_.bt_print(test_string);
-//
-//        }else if(automatic_state_ == 2){
-//            speed_ = 140;
-//            right();
-//
-//            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-//            bt_.bt_print(test_string);
-//
-//        }else if(automatic_state_ == 3){
-//            speed_ = 150;
-//            right();
-//
-//            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-//            bt_.bt_print(test_string);
-//        }else if(automatic_state_ == 4){
-//
-//            speed_ = 150;
-//            left();
-//
-//            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-//            bt_.bt_print(test_string);
-//        }
-
     }
+}
+
+void Car::autonomous_drive() {
 
 
 }

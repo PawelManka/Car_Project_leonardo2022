@@ -1,0 +1,87 @@
+@startuml
+class BluetoothModule{
+  + BluetoothModule(int rx_pin, int tx_pin)
+  + void bluetooth_setup()
+  + void read_device_value()
+  + void bt_print(String str)
+  + int available()
+  + char getMode() const
+  + int getStateValue() const
+  + int getEngineValue() const
+  + void read_cmd()
+  
+  - rx_pin: int&
+  - tx_pin : int&
+  - serial_bt : SoftwareSerial
+  - cmd_ : char[100]
+  - cmdIndex_ :int
+  - mode_ : char
+  - engine_value_ : int
+  - state_value_ : int
+
+  
+}
+
+class Engine{
++ Engine(char direction, int speed, int forward_pin, int backward_pin)
++ void set_direction(char direction)
++ void set_speed(int speed)
++ void engine_setup();
++ void upload_parameters();
+
+- direction_ : char
+- speed_ : int
+- forward_pin_ : int
+- backward_pin_ : int
+  
+}
+
+class DistanceSensor{
++ DistanceSensor(int trig_pin, int echo_pin): trig_pin_(trig_pin), echo_pin_(echo_pin)
++ void sensor_setup();
++ void change_distance();
++ int getDistance() const
+
+- trig_pin_ : int
+- echo_pin_ : int
+- distance_ : int
+  
+}
+
+class Car{
++ Car(BluetoothModule& bt, Engine& right_en, Engine& left_en, DistanceSensor& ds_front, DistanceSensor& ds_left, DistanceSensor& ds_right, MPU6050& mpu)
++ void setup()
++ bool is_connected()
++ void drive()
++ void update_automatic_state()
++ void forward()
++ void backward()
++ void right()
++ void left()
++ void stop()
++ char getMode() const
+
+- bt_ : BluetoothModule&
+- right_en_ : Engine&
+- left_en_ : Engine&
+- ds_front_ : DistanceSensor&
+- ds_left_ : DistanceSensor&
+- ds_right_ : DistanceSensor&
+- mpu_ : MPU6050&
+- speed_ : int 
+- mode_ : char
+- manual_state_ : int
+- automatic_state_ : int 
+  
+}
+
+
+
+
+
+Car o-- Engine
+Car o-- BluetoothModule
+Car  o-- DistanceSensor
+Car o-- MPU6050
+
+@enduml
