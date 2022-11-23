@@ -22,7 +22,7 @@ public:
      * @param rx_pin - pin reprezentujący rzeczywiste podłączenie w Arduino, rx jest pinem rx od arduino czyli na bluetooth module tx
      * @param tx_pin - pin reprezentujący rzeczywiste podłączenie w Arduino, tx jest pinem rx od arduino czyli na bluetooth module rx
      */
-    BluetoothModule(int rx_pin, int tx_pin): rx_pin_(rx_pin), tx_pin_(tx_pin), serial_bt_(SoftwareSerial(rx_pin_, tx_pin_)), mode_('n'), engine_value_(0), state_value_(0) { }
+    BluetoothModule(int rx_pin, int tx_pin): rx_pin_(rx_pin), tx_pin_(tx_pin), serial_bt_(SoftwareSerial(rx_pin_, tx_pin_)), mode_('n'), engine_value_(0), state_value_(4) { }
 
     /**
      * metoda odpowiedzialna za ustawienie urządzenia z płytką arduino
@@ -54,6 +54,8 @@ public:
 
     void read_cmd();
 
+    int getTestEngineValue() const;
+
 private:
     /**
      * metoda jest prywatną żebby zmniejszyć interfejs obiektu BluetoothModule, dodatkowo przy jej refaktoryzacji robię to tylko w obiekcie Bluetooth module
@@ -69,6 +71,7 @@ private:
     char mode_; //przyjmuje 'n' jeżeli nic nie zmienia, 'e' jeżeli zmienia silnik, 's' jeżeli serwomechanizm
     int engine_value_; //zapisywana wartość podawana na silnjik napędu
     int state_value_; //wartość podawana na  silnik kierownica
+    int test_engine_value_;
 
 };
 

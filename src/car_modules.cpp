@@ -33,10 +33,16 @@ void BluetoothModule::read_device_value() {
         mode_ = 'm';
     }else if( cmd_[0] == 'a'){
         mode_ = 'a';
+    }else if( cmd_[0] == 't'){
+        mode_ = 't';
+        test_engine_value_ = atoi(cmd_ + 2);
     }
     else{
         mode_ = 'n';
     }
+//    char bt_text[50] ;
+//    sprintf(bt_text, "mode = %c", mode_);
+//    bt_print(bt_text);
 
 }
 
@@ -50,6 +56,10 @@ int BluetoothModule::getEngineValue() const {
 
 int BluetoothModule::getStateValue() const {
     return state_value_;
+}
+
+int BluetoothModule::getTestEngineValue() const {
+    return test_engine_value_;
 }
 
 void Engine::engine_setup() {
@@ -97,8 +107,6 @@ void DistanceSensor::change_distance() {
 //    distance_ = int((sum + dis)/5);
 
 
-
-
 }
 
 void DistanceSensor::sensor_setup() {
@@ -108,32 +116,6 @@ void DistanceSensor::sensor_setup() {
     pinMode(echo_pin_, INPUT);
 }
 
-//void Mpu6050::MpuSetUp() {
-//
-//    Wire.begin(); //start the transmission, should be called only once
-//    Wire.beginTransmission(0x68);
-//    Wire.write(0x6B);
-//    Wire.write(0);
-//    Wire.endTransmission(true);
-//
-//
-//}
-
-//void Mpu6050::MpuReadValues() {
-//
-//
-//    Wire.beginTransmission(0x68);
-//    Wire.write(0x43);
-//    Wire.endTransmission(false); //keep connection active
-//    Wire.requestFrom(0x68, 6, true); //use only Gyro values
-//
-//    x_pos_ = Wire.read()<<8|Wire.read();
-//    y_pos_ = Wire.read()<<8|Wire.read();
-//    z_pos_ = Wire.read()<<8|Wire.read();
-//
-//    delay(10);
-//
-//}
 
 
 

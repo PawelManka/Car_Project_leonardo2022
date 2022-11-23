@@ -144,13 +144,15 @@ void Car::drive() {
     ds_left_.change_distance();
     ds_right_.change_distance();
     mpu_.update();
-
+    char test_string[170];
     if(mode_ == 'm') {
 
-        if(previous_mode_ == 'a'){
+        if(previous_mode_ == 'a' or previous_mode_ == 't' ){
             manual_state_ = 4;
         }
-        //TODO po zmianie z a ma sie zatrzymywac!
+//        sprintf(test_string, "manual_state = %d", manual_state_);
+//        bt_.bt_print(test_string);
+
         speed_ = bt_.getEngineValue();
         manual_state_ = bt_.getStateValue();
 
@@ -173,7 +175,7 @@ void Car::drive() {
 
     }else if(mode_ == 'a'){
 
-        char test_string[170];
+
         if(previous_mode_ == 'm'){
 
             automatic_state_ = 0;
@@ -185,86 +187,86 @@ void Car::drive() {
         }
 
         switch (automatic_state_ ) {
-        case 0:
-            speed_ = 120;
-            forward();
+            case 0:
+                speed_ = 120;
+                forward();
 
-            sprintf(test_string, "FORWARD text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 1:
+                sprintf(test_string, "FORWARD text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 1:
 
-            stop();
-            sprintf(test_string, "STOP text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 2:
-            speed_ = 140;
-            right();
+                stop();
+                sprintf(test_string, "STOP text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 2:
+                speed_ = 140;
+                right();
 
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 3:
-            speed_ = 180;
-            right();
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 3:
+                speed_ = 180;
+                right();
 
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 4:
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 4:
 
-            speed_ = 150;
-            left();
+                speed_ = 150;
+                left();
 
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 5:
-            speed_ = 150;
-            forward();
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 5:
+                speed_ = 150;
+                forward();
 
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
 
-        case 6:
-            speed_ = 150;
-            left();
+            case 6:
+                speed_ = 150;
+                left();
 
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 7:
-            speed_ = 140;
-            forward();
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 8:
-            speed_ = 150;
-            left();
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 9:
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 10:
-            speed_ = 150;
-            right();
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 7:
+                speed_ = 140;
+                forward();
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 8:
+                speed_ = 150;
+                left();
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 9:
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 10:
+                speed_ = 150;
+                right();
 
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
-        case 20:
-            speed_ = 220;
-            right();
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
+            case 20:
+                speed_ = 220;
+                right();
 
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-            break;
+                sprintf(test_string, "text automatic_state = %d", automatic_state_);
+                bt_.bt_print(test_string);
+                break;
         }
     }
 }
@@ -324,4 +326,6 @@ void Car::stop() {
     right_en_.upload_parameters();
 }
 
-
+void Car::setSpeed(int speed) {
+    speed_ = speed;
+}

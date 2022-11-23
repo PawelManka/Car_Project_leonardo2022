@@ -1,7 +1,3 @@
-//
-// Created by Admin on 05.08.2022.
-//
-
 #ifndef CAR_PROJECT_LEONARDO2022_CAR_HPP
 #define CAR_PROJECT_LEONARDO2022_CAR_HPP
 
@@ -42,6 +38,7 @@ public:
     char getMode() const;
     void autonomous_drive();
 
+    void setSpeed(int speed);
 
 private:
     BluetoothModule& bt_;
