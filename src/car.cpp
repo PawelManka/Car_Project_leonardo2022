@@ -4,6 +4,7 @@
 
 #include "car.hpp"
 
+
 void Car::setup() {
 
 
@@ -63,42 +64,52 @@ void Car::update_automatic_state() {
         case 3:
             if(abs(mpu_.getAngleZ() - old_angle) > 85){
                 automatic_state_ = 5;
-
+                case_3_4_ds_front = ds_front_.getDistance();
             }
             break;
         case 4:
             if(abs(mpu_.getAngleZ() - old_angle) > 85){
                 automatic_state_ = 5;
                 old_time = millis();
+                case_3_4_ds_front = ds_front_.getDistance();
             }
             break;
         case 5:
-            if(ds_left_.getDistance() > 10){
-                if(ds_left_.getDistance() > 10 and abs(millis() - old_time) > 1500){
 
-                    automatic_state_ = 6;
-                    old_angle = mpu_.getAngleZ();
-                }
+            if(ds_left_.getDistance() > 15 and (abs(case_3_4_ds_front - ds_front_.getDistance())) > 10){
+
+                automatic_state_ = 6;
+                old_angle = mpu_.getAngleZ();
+                case_5_distance_gained = abs(case_3_4_ds_front - ds_front_.getDistance());
             }
+
             break;
         case 6:
             if(abs(mpu_.getAngleZ() - old_angle) > 88){
                 automatic_state_ = 7;
                 avoiding_flag = 0;
+                case_6_ds_left = ds_left_.getDistance();
+
             }
             break;
         case 7:
-            if((avoiding_flag == 0) && (ds_left_.getDistance() < 10)){
-                if(ds_left_.getDistance() < 10){
+            // TODO: in case 7 there should be difference between not Magic Number
+            if((0 == avoiding_flag) && (CASE7_AVOID_DEVIATION < case_6_ds_left - ds_left_.getDistance())){
+                if(CASE7_AVOID_DEVIATION < case_6_ds_left - ds_left_.getDistance()){
                     avoiding_flag = 1;
                     bt_.bt_print("avoiding_flag1");
-                }
+                    case_7_flag_1_ds_left = ds_left_.getDistance();
 
-            }else if((1 == avoiding_flag) && (ds_left_.getDistance() > 10)){
-                if(ds_left_.getDistance() > 10){
-
-                    bt_.bt_print("avoiding_flag1");
                 }
+//            if((0 == avoiding_flag) && case_7_distance_gained < SAFE_SPACE){
+//                avoiding_flag = 1;
+//                bt_.bt_print("avoiding_flag1");
+//                case_7_flag_1_ds_left = ds_left_.getDistance();
+
+            }else if((1 == avoiding_flag) && (CASE7_AVOID_DEVIATION < (ds_left_.getDistance() - case_7_flag_1_ds_left) )){
+
+                bt_.bt_print("avoiding_flag 2");
+                avoiding_flag = 2;
 
             }else if(avoiding_flag == 2){
                 automatic_state_ = 8;
@@ -110,11 +121,12 @@ void Car::update_automatic_state() {
             if(abs(mpu_.getAngleZ() - old_angle) > 85){
                 automatic_state_ = 9;
                 actual_time = millis();
+                case_8_ds_front = ds_front_.getDistance();
             }
             break;
         case 9:
 
-            if(abs(actual_time - millis()) > 2000){
+            if( case_8_ds_front - ds_front_.getDistance()  > case_5_distance_gained){
                 automatic_state_ = 10;
                 old_angle = mpu_.getAngleZ();
             }
@@ -188,7 +200,7 @@ void Car::drive() {
 
         switch (automatic_state_ ) {
             case 0:
-                speed_ = 120;
+                speed_ = 110;
                 forward();
 
                 sprintf(test_string, "FORWARD text automatic_state = %d", automatic_state_);
@@ -201,14 +213,14 @@ void Car::drive() {
                 bt_.bt_print(test_string);
                 break;
             case 2:
-                speed_ = 140;
+                speed_ = 110;
                 right();
 
                 sprintf(test_string, "text automatic_state = %d", automatic_state_);
                 bt_.bt_print(test_string);
                 break;
             case 3:
-                speed_ = 180;
+                speed_ = 110;
                 right();
 
                 sprintf(test_string, "text automatic_state = %d", automatic_state_);
@@ -216,7 +228,7 @@ void Car::drive() {
                 break;
             case 4:
 
-                speed_ = 150;
+                speed_ = 110;
                 left();
 
                 sprintf(test_string, "text automatic_state = %d", automatic_state_);
@@ -238,7 +250,7 @@ void Car::drive() {
                 bt_.bt_print(test_string);
                 break;
             case 7:
-                speed_ = 140;
+                speed_ = 150;
                 forward();
                 sprintf(test_string, "text automatic_state = %d", automatic_state_);
                 bt_.bt_print(test_string);
@@ -250,6 +262,8 @@ void Car::drive() {
                 bt_.bt_print(test_string);
                 break;
             case 9:
+                speed_ = 150;
+                forward();
                 sprintf(test_string, "text automatic_state = %d", automatic_state_);
                 bt_.bt_print(test_string);
                 break;

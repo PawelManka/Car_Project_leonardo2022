@@ -5,6 +5,7 @@
 #include "car_modules.hpp"
 #include <MPU6050_light.h>
 
+#define CASE7_AVOID_DEVIATION 5
 
 class Car{
 public:
@@ -57,6 +58,11 @@ private:
     unsigned long actual_time;
     unsigned long time_for_avoiding;
     int avoiding_flag;
+    int case_3_4_ds_front;
+    int case_6_ds_left;
+    int case_5_distance_gained;
+    int case_7_flag_1_ds_left;
+    int case_8_ds_front;
 };
 
 #endif //CAR_PROJECT_LEONARDO2022_CAR_HPP
