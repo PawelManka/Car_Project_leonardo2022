@@ -3,10 +3,9 @@
 //
 
 #include "car.hpp"
-
+char print_state_tab[170];
 
 void Car::setup() {
-
 
     bt_.bluetooth_setup();
     left_en_.engine_setup();
@@ -93,11 +92,10 @@ void Car::update_automatic_state() {
             }
             break;
         case 7:
-            // TODO: in case 7 there should be difference between not Magic Number
             if((0 == avoiding_flag) && (CASE7_AVOID_DEVIATION < case_6_ds_left - ds_left_.getDistance())){
                 if(CASE7_AVOID_DEVIATION < case_6_ds_left - ds_left_.getDistance()){
                     avoiding_flag = 1;
-                    bt_.bt_print("avoiding_flag1");
+
                     case_7_flag_1_ds_left = ds_left_.getDistance();
 
                 }
@@ -108,7 +106,7 @@ void Car::update_automatic_state() {
 
             }else if((1 == avoiding_flag) && (CASE7_AVOID_DEVIATION < (ds_left_.getDistance() - case_7_flag_1_ds_left) )){
 
-                bt_.bt_print("avoiding_flag 2");
+
                 avoiding_flag = 2;
 
             }else if(avoiding_flag == 2){
@@ -118,7 +116,7 @@ void Car::update_automatic_state() {
             }
             break;
         case 8:
-            if(abs(mpu_.getAngleZ() - old_angle) > 85){
+            if(abs(mpu_.getAngleZ() - old_angle) > 88){
                 automatic_state_ = 9;
                 actual_time = millis();
                 case_8_ds_front = ds_front_.getDistance();
@@ -132,7 +130,7 @@ void Car::update_automatic_state() {
             }
             break;
         case 10:
-            if(abs(old_angle - mpu_.getAngleZ()) > 85){
+            if(abs(old_angle - mpu_.getAngleZ()) > 88){
                 automatic_state_ = 0;
             }
 
@@ -143,8 +141,6 @@ void Car::update_automatic_state() {
 //        }
 //        break;
     }
-
-
 }
 
 void Car::drive() {
@@ -157,6 +153,7 @@ void Car::drive() {
     ds_right_.change_distance();
     mpu_.update();
     char test_string[170];
+
     if(mode_ == 'm') {
 
         if(previous_mode_ == 'a' or previous_mode_ == 't' ){
@@ -187,92 +184,73 @@ void Car::drive() {
 
     }else if(mode_ == 'a'){
 
-
         if(previous_mode_ == 'm'){
 
             automatic_state_ = 0;
-            sprintf(test_string, "text automatic_state = %d", automatic_state_);
-            bt_.bt_print(test_string);
-
-        }else{
+            Print_State();
+        }
+        else{
             update_automatic_state();
         }
-
         switch (automatic_state_ ) {
             case 0:
                 speed_ = 110;
                 forward();
 
-                sprintf(test_string, "FORWARD text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 1:
 
                 stop();
-                sprintf(test_string, "STOP text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 2:
                 speed_ = 110;
                 right();
 
-                sprintf(test_string, "text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 3:
                 speed_ = 110;
                 right();
-
-                sprintf(test_string, "text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 4:
 
                 speed_ = 110;
                 left();
-
-                sprintf(test_string, "text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 5:
                 speed_ = 150;
                 forward();
-
-                sprintf(test_string, "text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
 
             case 6:
                 speed_ = 150;
                 left();
-
-                sprintf(test_string, "text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 7:
                 speed_ = 150;
                 forward();
-                sprintf(test_string, "text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 8:
                 speed_ = 150;
                 left();
-                sprintf(test_string, "text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 9:
                 speed_ = 150;
                 forward();
-                sprintf(test_string, "text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 10:
                 speed_ = 150;
                 right();
-
-                sprintf(test_string, "text automatic_state = %d", automatic_state_);
-                bt_.bt_print(test_string);
+                Print_State();
                 break;
             case 20:
                 speed_ = 220;
@@ -285,8 +263,8 @@ void Car::drive() {
     }
 }
 
-void Car::autonomous_drive() {
 
+void Car::autonomous_drive() {
 
 }
 
@@ -342,4 +320,17 @@ void Car::stop() {
 
 void Car::setSpeed(int speed) {
     speed_ = speed;
+}
+
+int Car::getSpeed() const {
+    return speed_;
+}
+
+int Car::getAutomaticState() const {
+    return automatic_state_;
+}
+
+void Car::Print_State() {
+//    sprintf(print_state_tab, "text automatic_state = %d", automatic_state_);
+//    bt_.bt_print(print_state_tab);
 }

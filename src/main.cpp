@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-#include "car_modules.hpp"
 #include "car.hpp"
 
 Engine left_en('F', 0, 5, 6);
@@ -11,10 +10,8 @@ DistanceSensor ds_l(12, 13);
 DistanceSensor ds_r(0, 1);
 MPU6050 mpu(Wire);
 
-int i = 0;
-int distance_buffer[3000];
-unsigned long time_buffer[3000];
 unsigned long start_testing = 0;
+unsigned long start_measure = 0;
 
 
 Car car(bt, left_en, right_en, ds_f, ds_l,ds_r, mpu);
@@ -28,8 +25,8 @@ int ds_val_r;
 int ds_val_l;
 
 void serial_print_sensors();
-void get_data();
 void map_pwm_to_velocity();
+void Bt_Map_Area();
 
 void setup() {
 
@@ -39,20 +36,16 @@ void setup() {
 
 }
 
-
 void loop() {
-
 
     car.drive();
     if( car.getMode() == 'a'){
 
-//        if(start_testing == 0){
-//            start_testing = millis();
-//        }
-//        get_data();
-
-        if((millis()-myTime) > 100) {
-            serial_print_sensors();
+        if((millis()-myTime) > 50) {
+            if( 0 == start_measure ){
+                start_measure = millis();
+            }
+            Bt_Map_Area();
             myTime = millis();
         }
 
@@ -61,34 +54,35 @@ void loop() {
             start_testing = millis();
         }
         map_pwm_to_velocity();
-
     }
-//    serial_print_sensors();
 
 }
 
 void serial_print_sensors(){
+/* print with USB */
+//        x_pos = mpu.getAngleX();
+//        y_pos = mpu.getAngleY();
+//        z_pos = mpu.getAngleZ();
+//        Serial.print("Ds = ");
+//        Serial.print(ds_f.getDistance());
+//        Serial.print(" x_pos = ");
+//        Serial.print(x_pos);
+//        Serial.print(" y_pos = ");
+//        Serial.print(y_pos);
+//        Serial.print(" z_pos = ");
+//        Serial.println(z_pos);
 
-        x_pos = mpu.getAngleX();
-        y_pos = mpu.getAngleY();
-        z_pos = mpu.getAngleZ();
+    ds_val_f = ds_f.getDistance();
+    ds_val_l = ds_l.getDistance();
+    ds_val_r = ds_r.getDistance();
 
+    sprintf(bt_string, "text z_pos=%d, ds_f=%d, ds_l=%d, ds_r=%d", z_pos, ds_val_f, ds_val_l, ds_val_r);
+    bt.bt_print(bt_string);
+}
 
-        Serial.print("Ds = ");
-        Serial.print(ds_f.getDistance());
-        Serial.print(" x_pos = ");
-        Serial.print(x_pos);
-        Serial.print(" y_pos = ");
-        Serial.print(y_pos);
-        Serial.print(" z_pos = ");
-        Serial.println(z_pos);
-
-        ds_val_f = ds_f.getDistance();
-        ds_val_l = ds_l.getDistance();
-        ds_val_r = ds_r.getDistance();
-        sprintf(bt_string, "text z_pos=%d, ds_f=%d, ds_l=%d, ds_r=%d", z_pos, ds_val_f, ds_val_l, ds_val_r);
-        bt.bt_print(bt_string);
-
+void Bt_Map_Area(){
+    sprintf(bt_string, "%d %d %d %d %d %ld %d",  ds_f.getDistance(), ds_l.getDistance(), ds_r.getDistance(), int(mpu.getAngleZ()), car.getSpeed(), (millis() - start_measure), car.getAutomaticState());
+    bt.bt_print(bt_string);
 }
 
 void map_pwm_to_velocity(){
@@ -108,26 +102,3 @@ void map_pwm_to_velocity(){
     }
 
 }
-
-//void get_data(){
-//
-//    if( car.getMode() == 'a'){
-//        if(i < 3000){
-//            distance_buffer[i] = ds_f.getDistance();
-//            time_buffer[i] = millis() - start_testing;
-//            i++;
-//        }else{
-//
-//            car.setMode('m');
-//            car.stop();
-//
-//            for(int k = 0; k< 3000; k++){
-//                sprintf(bt_string, "%d  %d", distance_buffer[k],time_buffer[k]);
-//                bt.bt_print(bt_string);
-//            }
-//
-//        }
-//
-//    }
-//
-//}

@@ -9,26 +9,15 @@
 
 class Car{
 public:
-    /**
-     * Za pomocą listy inicjalizacyjnej zostały zainicjalizowane pola klasy
-     * @param bt
-     * @param en
-     * @param c_en
-     * @param ds
-     */
+
     Car(BluetoothModule& bt, Engine& right_en, Engine& left_en, DistanceSensor& ds_front, DistanceSensor& ds_left, DistanceSensor& ds_right, MPU6050& mpu): bt_(bt), right_en_(right_en), left_en_(left_en), ds_front_(ds_front), ds_left_(ds_left), ds_right_(ds_right), speed_(0), mode_('n'), manual_state_(4), mpu_(mpu) {}
 
-    /**
-     * metoda setup korzysta z wszystkich dotychczasowych metód setup z każdego z podzespołów
-     */
     void setup();
 
     bool is_connected(){
         return bt_.available() > 0;
     }
-    /**
-     * metoda drive jest odpowiedzialna za jazdę, użytkownik za pomocą infterfejsu operatorskiego z telefonu prowdzi
-     */
+
     void drive();
     void update_automatic_state();
     void forward();
@@ -38,8 +27,11 @@ public:
     void stop();
     char getMode() const;
     void autonomous_drive();
-
+    void Print_State();
     void setSpeed(int speed);
+
+    int getSpeed() const;
+    int getAutomaticState() const;
 
 private:
     BluetoothModule& bt_;
@@ -64,5 +56,7 @@ private:
     int case_7_flag_1_ds_left;
     int case_8_ds_front;
 };
+
+
 
 #endif //CAR_PROJECT_LEONARDO2022_CAR_HPP

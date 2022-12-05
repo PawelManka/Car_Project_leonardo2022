@@ -18,9 +18,7 @@ void BluetoothModule::read_cmd() {
             if (cmdIndex_ < 99) cmdIndex_++; // w przypadku gdy jest miejsce w tablicy przesuwa index,
         }
     }
-
 }
-
 
 void BluetoothModule::read_device_value() {
 
