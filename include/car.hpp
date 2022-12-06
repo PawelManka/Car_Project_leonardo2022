@@ -1,7 +1,8 @@
 #ifndef CAR_PROJECT_LEONARDO2022_CAR_HPP
 #define CAR_PROJECT_LEONARDO2022_CAR_HPP
 
-#define SAFE_SPACE 10
+#define SAFE_SPACE 13
+#define ROTATION_DEGREE 87
 #include "car_modules.hpp"
 #include <MPU6050_light.h>
 
@@ -53,8 +54,10 @@ private:
     int case_3_4_ds_front;
     int case_6_ds_left;
     int case_5_distance_gained;
-    int case_7_flag_1_ds_left;
+//    int case_7_flag_1_ds_left;
     int case_8_ds_front;
+    int case_11_distance_gained;
+    int case_12_ds_right;
 };
 
 

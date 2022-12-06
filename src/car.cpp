@@ -23,6 +23,10 @@ void Car::setup() {
 
 void Car::update_automatic_state() {
 
+//    static int case_12_ds_right;
+    static int case_7_flag_1_ds_left;
+    static int old_ds_left_distance;
+
     switch (automatic_state_) {
         case 0:
             if(ds_front_.getDistance() < SAFE_SPACE){
@@ -30,10 +34,11 @@ void Car::update_automatic_state() {
             }
             break;
         case 1:
-            if(ds_front_.getDistance() >= SAFE_SPACE){
+            if(ds_front_.getDistance() >= SAFE_SPACE)
+            {
                 automatic_state_ = 0;
-            }else{
-
+            }else
+            {
                 if(ds_right_.getDistance() > SAFE_SPACE or ds_left_.getDistance() > SAFE_SPACE){
                     old_time = millis();
                     if(ds_right_.getDistance() > ds_left_.getDistance()){
@@ -61,62 +66,84 @@ void Car::update_automatic_state() {
             break;
 
         case 3:
-            if(abs(mpu_.getAngleZ() - old_angle) > 85){
+            if(abs(mpu_.getAngleZ() - old_angle) > ROTATION_DEGREE){
                 automatic_state_ = 5;
                 case_3_4_ds_front = ds_front_.getDistance();
             }
             break;
         case 4:
-            if(abs(mpu_.getAngleZ() - old_angle) > 85){
+            if(abs(mpu_.getAngleZ() - old_angle) > ROTATION_DEGREE){
                 automatic_state_ = 5;
                 old_time = millis();
                 case_3_4_ds_front = ds_front_.getDistance();
             }
             break;
+//        case 11:
+//            if(ds_right_.getDistance() > 15 and (abs(case_3_4_ds_front - ds_front_.getDistance())) > 10){
+//
+//                automatic_state_ = 12;
+//                old_angle = mpu_.getAngleZ();
+//                case_11_distance_gained = abs(case_3_4_ds_front - ds_front_.getDistance());
+//            }
+//
+//            break;
+//        case 12:
+//            if(abs(mpu_.getAngleZ() - old_angle) > 88){
+//                automatic_state_ = 13;
+//                avoiding_flag = 0;
+//                case_12_ds_right = ds_right_.getDistance();
+//
+//            }
+//            break;
+
         case 5:
-
-            if(ds_left_.getDistance() > 15 and (abs(case_3_4_ds_front - ds_front_.getDistance())) > 10){
-
-                automatic_state_ = 6;
-                old_angle = mpu_.getAngleZ();
-                case_5_distance_gained = abs(case_3_4_ds_front - ds_front_.getDistance());
+            if(ds_front_.getDistance() < SAFE_SPACE){
+                automatic_state_ = 1;
+            }else {
+                if (ds_left_.getDistance() > 15 and (abs(case_3_4_ds_front - ds_front_.getDistance()) > 13)) {
+                    if (old_ds_left_distance > 15){
+                        automatic_state_ = 6;
+                        old_angle = mpu_.getAngleZ();
+                        case_5_distance_gained = abs(case_3_4_ds_front - ds_front_.getDistance());
+                    }
+                    old_ds_left_distance = ds_left_.getDistance();
+                }
             }
-
             break;
         case 6:
-            if(abs(mpu_.getAngleZ() - old_angle) > 88){
+            if(abs(mpu_.getAngleZ() - old_angle) > ROTATION_DEGREE){
                 automatic_state_ = 7;
                 avoiding_flag = 0;
                 case_6_ds_left = ds_left_.getDistance();
-
             }
             break;
+
         case 7:
-            if((0 == avoiding_flag) && (CASE7_AVOID_DEVIATION < case_6_ds_left - ds_left_.getDistance())){
-                if(CASE7_AVOID_DEVIATION < case_6_ds_left - ds_left_.getDistance()){
-                    avoiding_flag = 1;
+            if(ds_front_.getDistance() < SAFE_SPACE){
+                automatic_state_ = 1;
+            }else {
+                if ((0 == avoiding_flag) && (CASE7_AVOID_DEVIATION < case_6_ds_left - ds_left_.getDistance())) {
+                    if (CASE7_AVOID_DEVIATION < case_6_ds_left - ds_left_.getDistance()) {
+                        avoiding_flag = 1;
 
-                    case_7_flag_1_ds_left = ds_left_.getDistance();
+                        case_7_flag_1_ds_left = ds_left_.getDistance();
 
+                    }
+
+                } else if ((1 == avoiding_flag) &&
+                           (CASE7_AVOID_DEVIATION < (ds_left_.getDistance() - case_7_flag_1_ds_left))) {
+
+                    avoiding_flag = 2;
+
+                } else if (avoiding_flag == 2) {
+                    automatic_state_ = 8;
+                    old_angle = mpu_.getAngleZ();
+                    avoiding_flag = 0; // not estimated
                 }
-//            if((0 == avoiding_flag) && case_7_distance_gained < SAFE_SPACE){
-//                avoiding_flag = 1;
-//                bt_.bt_print("avoiding_flag1");
-//                case_7_flag_1_ds_left = ds_left_.getDistance();
-
-            }else if((1 == avoiding_flag) && (CASE7_AVOID_DEVIATION < (ds_left_.getDistance() - case_7_flag_1_ds_left) )){
-
-
-                avoiding_flag = 2;
-
-            }else if(avoiding_flag == 2){
-                automatic_state_ = 8;
-                old_angle = mpu_.getAngleZ();
-                avoiding_flag = 0; // not estimated
             }
             break;
         case 8:
-            if(abs(mpu_.getAngleZ() - old_angle) > 88){
+            if(abs(mpu_.getAngleZ() - old_angle) > ROTATION_DEGREE){
                 automatic_state_ = 9;
                 actual_time = millis();
                 case_8_ds_front = ds_front_.getDistance();
@@ -130,7 +157,7 @@ void Car::update_automatic_state() {
             }
             break;
         case 10:
-            if(abs(old_angle - mpu_.getAngleZ()) > 88){
+            if(abs(old_angle - mpu_.getAngleZ()) > ROTATION_DEGREE){
                 automatic_state_ = 0;
             }
 
@@ -221,6 +248,22 @@ void Car::drive() {
                 left();
                 Print_State();
                 break;
+            case 11:
+                speed_ = 150;
+                forward();
+                Print_State();
+                break;
+            case 12:
+                speed_ = 150;
+                right();
+                Print_State();
+                break;
+            case 13:
+                speed_ = 150;
+                forward();
+                Print_State();
+                break;
+
             case 5:
                 speed_ = 150;
                 forward();
@@ -228,7 +271,7 @@ void Car::drive() {
                 break;
 
             case 6:
-                speed_ = 150;
+                speed_ = 110;
                 left();
                 Print_State();
                 break;
@@ -238,7 +281,7 @@ void Car::drive() {
                 Print_State();
                 break;
             case 8:
-                speed_ = 150;
+                speed_ = 110;
                 left();
                 Print_State();
                 break;
@@ -248,7 +291,7 @@ void Car::drive() {
                 Print_State();
                 break;
             case 10:
-                speed_ = 150;
+                speed_ = 110;
                 right();
                 Print_State();
                 break;
@@ -331,6 +374,6 @@ int Car::getAutomaticState() const {
 }
 
 void Car::Print_State() {
-//    sprintf(print_state_tab, "text automatic_state = %d", automatic_state_);
-//    bt_.bt_print(print_state_tab);
+    sprintf(print_state_tab, "text automatic_state = %d", automatic_state_);
+    bt_.bt_print(print_state_tab);
 }
